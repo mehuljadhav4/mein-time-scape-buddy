@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import TimerForm from '@/components/TimerForm';
@@ -34,8 +33,8 @@ const Index = () => {
     localStorage.setItem('meintimers', JSON.stringify(timers));
   }, [timers]);
 
-  const handleTimerCreate = (label: string, durationInSeconds: number) => {
-    const newTimer = createTimer(label, durationInSeconds);
+  const handleTimerCreate = (label: string, durationInSeconds: number, loop: boolean) => {
+    const newTimer = createTimer(label, durationInSeconds, loop);
     setTimers([...timers, newTimer]);
     
     toast({

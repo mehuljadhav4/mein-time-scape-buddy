@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Dialog, 
@@ -12,11 +11,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus, Clock } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Plus, Clock, Repeat } from 'lucide-react';
 import { createTimer } from '@/utils/timerUtils';
 
 interface TimerFormProps {
-  onTimerCreate: (label: string, durationInSeconds: number) => void;
+  onTimerCreate: (label: string, durationInSeconds: number, loop: boolean) => void;
 }
 
 const TimerForm: React.FC<TimerFormProps> = ({ onTimerCreate }) => {
@@ -24,6 +24,7 @@ const TimerForm: React.FC<TimerFormProps> = ({ onTimerCreate }) => {
   const [hours, setHours] = useState('');
   const [minutes, setMinutes] = useState('');
   const [seconds, setSeconds] = useState('');
+  const [loop, setLoop] = useState(false);
   const [open, setOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,7 +46,7 @@ const TimerForm: React.FC<TimerFormProps> = ({ onTimerCreate }) => {
       return;
     }
     
-    onTimerCreate(label, totalSeconds);
+    onTimerCreate(label, totalSeconds, loop);
     resetForm();
     setOpen(false);
   };
@@ -55,6 +56,7 @@ const TimerForm: React.FC<TimerFormProps> = ({ onTimerCreate }) => {
     setHours('');
     setMinutes('');
     setSeconds('');
+    setLoop(false);
   };
 
   const handleClose = () => {
@@ -121,6 +123,18 @@ const TimerForm: React.FC<TimerFormProps> = ({ onTimerCreate }) => {
                 </div>
               </div>
             </div>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="loop"
+              checked={loop}
+              onCheckedChange={(checked) => setLoop(checked as boolean)}
+            />
+            <Label htmlFor="loop" className="flex items-center gap-2">
+              <Repeat className="h-4 w-4" />
+              Loop continuously
+            </Label>
           </div>
           
           <DialogFooter className="sm:justify-between gap-2">

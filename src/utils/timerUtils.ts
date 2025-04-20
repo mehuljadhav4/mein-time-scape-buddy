@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 
 export interface Timer {
@@ -8,10 +7,11 @@ export interface Timer {
   remaining: number; // in seconds
   isRunning: boolean;
   isCompleted: boolean;
+  loop: boolean; // new property for continuous looping
   createdAt: Date;
 }
 
-export function createTimer(label: string, duration: number): Timer {
+export function createTimer(label: string, duration: number, loop: boolean = false): Timer {
   return {
     id: uuidv4(),
     label,
@@ -19,6 +19,7 @@ export function createTimer(label: string, duration: number): Timer {
     remaining: duration,
     isRunning: false,
     isCompleted: false,
+    loop,
     createdAt: new Date(),
   };
 }
@@ -42,8 +43,38 @@ export function calculateProgress(timer: Timer): number {
 }
 
 export function playNotificationSound(): void {
-  const audio = new Audio('/notification.mp3');
-  audio.play().catch(error => {
+  try {
+    // Create audio context
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    // Configure the sound
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime); // Higher pitch
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime); // Lower volume
+
+    // Connect nodes
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    // Play the sound
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.5); // Play for 0.5 seconds
+
+    // Clean up
+    setTimeout(() => {
+      oscillator.disconnect();
+      gainNode.disconnect();
+    }, 1000);
+  } catch (error) {
     console.error('Failed to play notification sound:', error);
-  });
+    // Fallback to audio element
+    try {
+      const audio = new Audio('/notification.mp3');
+      audio.play().catch(console.error);
+    } catch (fallbackError) {
+      console.error('Failed to play fallback sound:', fallbackError);
+    }
+  }
 }
